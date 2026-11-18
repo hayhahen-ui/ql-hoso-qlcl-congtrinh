@@ -1,0 +1,29 @@
+{
+  "name": "ql-hoso-qlcl-congtrinh",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Hệ thống Quản lý Chất lượng & Hồ sơ Nghiệm thu Công trình Xây dựng (Kaizen V3 - NĐ 207/2026/NĐ-CP & TT 32/2026/TT-BXD)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide-react": "^0.475.0",
+    "next": "^15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.14",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "tailwindcss": "^4.0.14",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

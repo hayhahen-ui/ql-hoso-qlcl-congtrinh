@@ -1,0 +1,680 @@
+import {
+  DossierChecklistItem,
+  QlclWorkspaceState,
+  StandardCatalogItem,
+  TimeSlot,
+  WorkCatalogItem,
+  SimpleCatalogItem,
+} from "@/types/qlcl";
+
+export const STANDARD_WORK_CATALOG: WorkCatalogItem[] = [
+  { code: "DEMO-CV-001", name: "Đổ bê tông móng công trình (M250)", standard_codes: "TCVN4453:1995;TCVN4055:2012", test_codes: "CP.010032", unit: "m3" },
+  { code: "AB.11422", name: "Đào móng công trình bằng máy đào kết hợp thủ công", standard_codes: "TCVN4447:2012;TCVN9361:2012", test_codes: "CP.010001", unit: "m3" },
+  { code: "AF.11111", name: "Đổ bê tông lót móng đá 1x2 mác 100", standard_codes: "TCVN4453:1995", test_codes: "CP.010032", unit: "m3" },
+  { code: "AF.61121", name: "Gia công lắp dựng cốt thép móng đường kính <= 18mm", standard_codes: "TCVN4453:1995;TCVN9390:2012", test_codes: "CP.010010", unit: "tấn" },
+  { code: "AF.81111", name: "Lắp dựng ván khuôn móng bằng ván khuôn phủ phim", standard_codes: "TCVN4453:1995;TCXDVN296:2004", test_codes: "", unit: "m2" },
+  { code: "AF.12215", name: "Đổ bê tông cột tiết diện <= 0,1m2, đá 1x2 mác 300", standard_codes: "TCVN4453:1995;TCVN5637:1991", test_codes: "CP.010032", unit: "m3" },
+  { code: "AF.12324", name: "Đổ bê tông xà dầm, giằng, sàn nhà đá 1x2 mác 250", standard_codes: "TCVN4453:1995;TCVN5718:1993", test_codes: "CP.010032", unit: "m3" },
+  { code: "AE.22223", name: "Xây tường gạch không nung chiều dày <= 22cm vữa XM mác 75", standard_codes: "TCVN4085:2011", test_codes: "CP.010012;CP.010033", unit: "m3" },
+  { code: "AK.21223", name: "Trát tường trong chiều dày 1,5cm vữa XM mác 75", standard_codes: "TCVN9377-2:2012", test_codes: "CP.010033", unit: "m2" },
+  { code: "AK.51280", name: "Lát nền gạch Ceramic chống trơn KT 600x600", standard_codes: "TCVN9377-1:2012", test_codes: "CP.010012", unit: "m2" },
+  { code: "AK.84112", name: "Sơn bả tường trong nhà 1 lớp lót, 2 lớp phủ", standard_codes: "TCVN2292:1978", test_codes: "", unit: "m2" },
+  { code: "HT.00001", name: "Nghiệm thu hoàn thành giai đoạn / hạng mục công trình", standard_codes: "TCVN5637:1991;ND207/2026", test_codes: "CP.010028", unit: "gói" },
+];
+
+export const STANDARD_TCNT_CATALOG: StandardCatalogItem[] = [
+  { code: "TCVN4055:2012", name: "Tổ chức thi công", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành (cần rà soát theo dự án)", approved: true },
+  { code: "TCVN4447:2012", name: "Công tác đất — Thi công và nghiệm thu", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành (cần rà soát theo dự án)", approved: true },
+  { code: "TCVN4453:1995", name: "Kết cấu bê tông và bê tông cốt thép toàn khối — Quy phạm thi công và nghiệm thu", version: "1995", effective_from: "1995-01-01", source: "TCVN hiện hành (cần rà soát theo dự án)", approved: true },
+  { code: "TCVN9361:2012", name: "Công tác nền móng — Thi công và nghiệm thu", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành", approved: true },
+  { code: "TCVN9390:2012", name: "Thép cốt bê tông — Mối nối bằng dập ép ống — Yêu cầu thiết kế, thi công và nghiệm thu", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành", approved: true },
+  { code: "TCVN4085:2011", name: "Kết cấu gạch đá — Quy phạm thi công và nghiệm thu", version: "2011", effective_from: "2011-01-01", source: "TCVN hiện hành", approved: true },
+  { code: "TCVN9377-1:2012", name: "Công tác hoàn thiện trong xây dựng — Phần 1: Công tác lát và láng", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành", approved: true },
+  { code: "TCVN9377-2:2012", name: "Công tác hoàn thiện trong xây dựng — Phần 2: Công tác trát", version: "2012", effective_from: "2012-12-01", source: "TCVN hiện hành", approved: true },
+  { code: "TCVN5637:1991", name: "Quản lý chất lượng xây lắp công trình xây dựng — Nguyên tắc cơ bản", version: "1991", effective_from: "1991-01-01", source: "TCVN tham chiếu", approved: true },
+  { code: "DEMO-TC-001", name: "Tiêu chuẩn DEMO — chờ chuyên gia xác minh áp dụng", version: "Chờ duyệt", effective_from: "2026-07-01", source: "Placeholder kiểm thử", approved: false },
+];
+
+export const STANDARD_INSPECTION_TYPES: SimpleCatalogItem[] = [
+  { code: "KT.00001", name: "Kiểm tra phòng thí nghiệm tại hiện trường", group: "Điều kiện chuẩn bị" },
+  { code: "KT.00002", name: "Kiểm tra nhân lực, thiết bị thi công", group: "Điều kiện chuẩn bị" },
+  { code: "KT.00003", name: "Kiểm tra điều kiện trước khi thi công", group: "Điều kiện chuẩn bị" },
+  { code: "KT.00004", name: "Kiểm tra cao độ, KTHH hố móng", group: "HM" },
+  { code: "KT.00005", name: "Kiểm tra cao độ, KTHH đất đắp", group: "DAP" },
+  { code: "KT.00006", name: "Kiểm tra KTHH bê tông, khối xây", group: "BT" },
+  { code: "KT.00007", name: "Kiểm tra lắp đặt ván khuôn", group: "CP" },
+  { code: "KT.00008", name: "Kiểm tra gia công lắp dựng cốt thép", group: "CT" },
+  { code: "KT.00010", name: "Kiểm tra điều kiện trước đổ bê tông", group: "BT" },
+  { code: "KT.00011", name: "Theo dõi quá trình đổ bê tông (Phiếu BT)", group: "BT" },
+  { code: "KT.00012", name: "Kiểm tra bề mặt bê tông sau tháo ván khuôn", group: "BT" },
+  { code: "DEMO-KT-DK", name: "Kiểm tra điều kiện trước đổ bê tông (Mã liên kết Demo v1)", group: "Công tác bê tông" },
+];
+
+export const STANDARD_TEST_TYPES: SimpleCatalogItem[] = [
+  { code: "DEMO-TN-001", name: "Thử cường độ nén mẫu bê tông (Liên kết Demo v1)", group: "BT" },
+  { code: "CP.010001", name: "Thí nghiệm chỉ tiêu cơ lý mẫu đất nền", group: "VL" },
+  { code: "CP.010007", name: "Thí nghiệm chỉ tiêu cơ lý cát xây dựng", group: "VL" },
+  { code: "CP.010008", name: "Thí nghiệm đá dăm cho bê tông", group: "VL" },
+  { code: "CP.010009", name: "Thí nghiệm xi măng PCB40", group: "VL" },
+  { code: "CP.010010", name: "Thí nghiệm kéo, uốn thép cốt bê tông", group: "VL" },
+  { code: "CP.010012", name: "Thí nghiệm gạch xây / gạch lát", group: "VL" },
+  { code: "CP.010021", name: "Thí nghiệm độ chặt hiện trường (rót cát)", group: "HT" },
+  { code: "CP.010032", name: "Thí nghiệm cường độ nén mẫu bê tông (R3/R7/R28)", group: "BT" },
+  { code: "CP.010033", name: "Thí nghiệm cường độ vữa xi măng (khuôn 4x4x16cm)", group: "BT" },
+];
+
+export const STANDARD_TEST_RESULTS: SimpleCatalogItem[] = [
+  { code: "DEMO-KQ-001", name: "Chờ đánh giá (Chưa phát hành)", group: "Chờ xác minh" },
+  { code: "KQ-CP-010032", name: "Phiếu KQ nén mẫu bê tông đạt mác thiết kế", group: "BT" },
+  { code: "KQ-CP-010010", name: "Phiếu KQ kéo uốn thép cốt đạt giới hạn chảy/bền", group: "VL" },
+  { code: "KQ-CP-010007", name: "Phiếu KQ chỉ tiêu cơ lý cát vàng đạt TCVN", group: "VL" },
+  { code: "KQ-CP-010021", name: "Phiếu KQ độ chặt K>=0.95 đạt yêu cầu", group: "HT" },
+];
+
+export const STANDARD_MACHINES: SimpleCatalogItem[] = [
+  { code: "DEMO-MAY-001", name: "Máy trộn bê tông 350L", group: "Thiết bị trộn" },
+  { code: "M0001", name: "Máy đào gầu 0.8 m3", group: "Máy làm đất" },
+  { code: "M0002", name: "Xe bơm bê tông cần 37m", group: "Thiết bị bê tông" },
+  { code: "M0003", name: "Đầm dùi bê tông chạy điện", group: "Thiết bị bê tông" },
+  { code: "M0004", name: "Máy cắt, uốn cốt thép", group: "Thiết bị gia công thép" },
+  { code: "M0005", name: "Máy toàn đạc điện tử trắc đạc", group: "Thiết bị đo đạc" },
+  { code: "M0006", name: "Đầm cóc đầm nền hố móng", group: "Máy làm đất" },
+  { code: "M0007", name: "Cần trục tháp / Vận thăng nâng hàng", group: "Thiết bị nâng" },
+];
+
+export const STANDARD_TIME_SLOTS: TimeSlot[] = [
+  { slot_no: 1, base_start: "07:35", base_end: "08:15", internal_label: "07h35-08h15", acceptance_label: "08h00-08h40", locked: true },
+  { slot_no: 2, base_start: "08:30", base_end: "09:10", internal_label: "08h30-09h10", acceptance_label: "09h00-09h40", locked: true },
+  { slot_no: 3, base_start: "09:25", base_end: "10:05", internal_label: "09h25-10h05", acceptance_label: "10h00-10h40", locked: true },
+  { slot_no: 4, base_start: "10:20", base_end: "11:00", internal_label: "10h20-11h00", acceptance_label: "10h45-11h25", locked: true },
+  { slot_no: 5, base_start: "13:30", base_end: "14:10", internal_label: "13h30-14h10", acceptance_label: "14h00-14h40", locked: true },
+  { slot_no: 6, base_start: "14:20", base_end: "15:00", internal_label: "14h20-15h00", acceptance_label: "14h45-15h25", locked: true },
+  { slot_no: 7, base_start: "15:10", base_end: "15:50", internal_label: "15h10-15h50", acceptance_label: "15h30-16h10", locked: true },
+  { slot_no: 8, base_start: "16:10", base_end: "16:50", internal_label: "16h10-16h50", acceptance_label: "16h20-17h00", locked: true },
+];
+
+const PL7_I: Array<[string, string]> = [
+  ["I.1", "Chủ trương đầu tư và báo cáo tiền khả thi"],
+  ["I.2", "Quyết định dự án và báo cáo khả thi hoặc kinh tế–kỹ thuật"],
+  ["I.3", "Nhiệm vụ thiết kế; văn bản thẩm định/ý kiến dự án, thiết kế cơ sở"],
+  ["I.4", "Đền bù GPMB, tái định cư"],
+  ["I.5", "Thỏa thuận quy hoạch, đấu nối, môi trường, an toàn và liên quan"],
+  ["I.6", "Giao/thuê đất hoặc hợp đồng thuê đất khi không được cấp đất"],
+  ["I.7", "Giấy phép xây dựng (hoặc căn cứ miễn giấy phép)"],
+  ["I.8", "Chỉ định thầu/phê duyệt lựa chọn nhà thầu và hợp đồng"],
+  ["I.9", "Tài liệu chứng minh năng lực nhà thầu"],
+  ["I.10", "Tài liệu khác giai đoạn chuẩn bị đầu tư"],
+];
+
+const PL7_II: Array<[string, string]> = [
+  ["II.1", "Nhiệm vụ, phương án khảo sát, báo cáo khảo sát xây dựng"],
+  ["II.2", "Phê duyệt báo cáo khảo sát (khi không duyệt trực tiếp)"],
+  ["II.3", "Thẩm tra, thẩm định, quyết định duyệt thiết kế + danh mục bản vẽ"],
+  ["II.4", "Thông báo chấp thuận nghiệm thu thiết kế"],
+  ["II.5", "Tài liệu khác liên quan giai đoạn khảo sát, thiết kế"],
+];
+
+const PL7_III: Array<[string, string]> = [
+  ["III.1", "Thay đổi thiết kế và thẩm định/phê duyệt điều chỉnh"],
+  ["III.2", "Bản vẽ hoàn công và danh mục bản vẽ hoàn công (PL IIb)"],
+  ["III.3", "Kế hoạch/biện pháp kiểm tra, kiểm soát chất lượng thi công"],
+  ["III.4", "Xuất xứ, nhãn, công bố tiêu chuẩn; chứng nhận hợp quy/hợp chuẩn vật liệu"],
+  ["III.5", "Kết quả quan trắc (nếu có), đo đạc KTHH, thí nghiệm vật liệu/cấu kiện"],
+  ["III.6", "Biên bản nghiệm thu công việc xây dựng, bộ phận/giai đoạn"],
+  ["III.7", "Thí nghiệm đối chứng, kiểm định chất lượng, thử tải (nếu có)"],
+  ["III.8", "Hồ sơ QLCL thiết bị lắp đặt vào công trình"],
+  ["III.9", "Quy trình vận hành/khai thác; quy trình bảo trì công trình"],
+  ["III.10", "Văn bản chấp thuận/xác nhận của cơ quan chuyên ngành (PCCC, môi trường...)"],
+  ["III.11", "Hồ sơ giải quyết sự cố công trình (nếu có, Điều 48)"],
+  ["III.12", "Phụ lục tồn tại cần khắc phục sau đưa vào sử dụng (nếu có)"],
+  ["III.13", "Biên bản nghiệm thu hoàn thành hạng mục / công trình (Điều 24)"],
+  ["III.14", "Thông báo kết quả kiểm tra của cơ quan có thẩm quyền (PL VIII)"],
+  ["III.15", "Hồ sơ quá trình kiểm tra công tác nghiệm thu (Báo cáo PL VI)"],
+  ["III.16", "Hồ sơ khác liên quan thi công/nghiệm thu (Nhật ký PL IIa, VB kỹ thuật)"],
+];
+
+const PL10_X: Array<[string, string]> = [
+  ["X.1", "Dự án đầu tư và báo cáo nghiên cứu khả thi / kinh tế–kỹ thuật"],
+  ["X.2", "Báo cáo khảo sát xây dựng được xác nhận"],
+  ["X.3", "Thiết kế bản vẽ thi công và các thay đổi thiết kế đã duyệt"],
+  ["X.4", "Bản vẽ hoàn công và danh mục bản vẽ hoàn công"],
+  ["X.5", "Kết quả quan trắc, kiểm định, thử tải và danh mục phụ tùng dự trữ"],
+  ["X.6", "Hồ sơ quản lý chất lượng thiết bị lắp đặt"],
+  ["X.7", "Quy trình vận hành/khai thác, quy trình bảo trì công trình"],
+  ["X.8", "Hồ sơ giải quyết sự cố công trình (nếu có)"],
+  ["X.9", "Biên bản nghiệm thu hoàn thành và phụ lục tồn tại cần khắc phục"],
+  ["X.10", "Thông báo chấp thuận kết quả nghiệm thu của cơ quan có thẩm quyền"],
+  ["X.11", "Hồ sơ khác phục vụ công tác bảo trì, quản lý sử dụng công trình"],
+];
+
+export function build42ChecklistTemplate(projectCode: string, scopeId: string, isDemo: boolean): DossierChecklistItem[] {
+  const mk = (
+    id: string,
+    name: string,
+    annex: "VII" | "X",
+    groupName: string,
+    docRef = "",
+    applicability: DossierChecklistItem["applicability"] = "unknown",
+    status: DossierChecklistItem["status"] = "missing"
+  ): DossierChecklistItem => ({
+    project_code: projectCode,
+    scope_id: scopeId,
+    checklist_id: id,
+    annex,
+    group_name: groupName,
+    checklist_name: name,
+    applicability: isDemo ? applicability : "unknown",
+    applicability_reason: isDemo
+      ? applicability === "applicable"
+        ? "Áp dụng theo loại công trình dân dụng mẫu (Cần rà soát khi áp dụng thật)"
+        : applicability === "not_applicable"
+        ? "Không phát sinh trong kịch bản mẫu"
+        : "Chờ đánh giá điều kiện áp dụng thực tế"
+      : "",
+    status: isDemo ? status : "missing",
+    document_ref: isDemo ? docRef : "",
+    version: 1,
+    original_type: isDemo && docRef ? "Bản sao hợp pháp" : "Chưa xác định",
+    physical_location: isDemo && docRef ? "Tủ hồ sơ Ban Chỉ huy (Giả định)" : "",
+    electronic_copy_ref: isDemo && docRef ? `files/${projectCode}/${id}.pdf` : "",
+    reviewer: isDemo && status === "accepted" ? "KS. Phạm Văn D (TVGS Demo)" : "",
+  });
+
+  return [
+    ...PL7_I.map(([id, name]) =>
+      mk(
+        id,
+        name,
+        "VII",
+        "Nhóm I — Chuẩn bị đầu tư",
+        id === "I.2" ? "DEMO-QD-001" : id === "I.8" ? "HD-2026-01-DEMO" : "",
+        id === "I.4" ? "not_applicable" : id === "I.2" || id === "I.8" ? "applicable" : "unknown",
+        id === "I.2" || id === "I.8" ? "in_review" : "missing"
+      )
+    ),
+    ...PL7_II.map(([id, name]) =>
+      mk(
+        id,
+        name,
+        "VII",
+        "Nhóm II — Khảo sát & Thiết kế",
+        id === "II.3" ? "DEMO-TK-001" : "",
+        id === "II.3" ? "applicable" : "unknown",
+        id === "II.3" ? "accepted" : "missing"
+      )
+    ),
+    ...PL7_III.map(([id, name]) => {
+      const refMap: Record<string, string> = {
+        "III.2": "DEMO-HC-001",
+        "III.4": "DEMO-DOC-VL-001;DEMO-LO-001",
+        "III.5": "DEMO-M-001;DEMO-KT-001",
+        "III.6": "DEMO-BB-001;DEMO-BB-002",
+        "III.16": "NKTC-2026-08-DEMO",
+      };
+      const hasRef = Boolean(refMap[id]);
+      return mk(
+        id,
+        name,
+        "VII",
+        "Nhóm III — Thi công & Nghiệm thu",
+        refMap[id] ?? "",
+        hasRef ? "applicable" : id === "III.11" ? "not_applicable" : "unknown",
+        hasRef ? "in_review" : "missing"
+      );
+    }),
+    ...PL10_X.map(([id, name]) => {
+      const refMap: Record<string, string> = {
+        "X.3": "DEMO-TK-001",
+        "X.4": "DEMO-HC-001",
+        "X.5": "DEMO-QT-001",
+      };
+      const hasRef = Boolean(refMap[id]);
+      return mk(
+        id,
+        name,
+        "X",
+        "Phụ lục X — Hồ sơ Quản lý, Sử dụng & Bảo trì",
+        refMap[id] ?? "",
+        hasRef ? "applicable" : "unknown",
+        hasRef ? "in_review" : "missing"
+      );
+    }),
+  ];
+}
+
+export function createDemoSeedState(): QlclWorkspaceState {
+  return {
+    tenantId: "tenant-demo-001",
+    tenantMode: "demo",
+    tenantName: "Không gian DEMO (Dữ liệu giả lập đầy đủ 100%)",
+    lastUpdated: "2026-08-14T16:30:00+07:00",
+    project: {
+      project_code: "DEMO-CT-001",
+      project_name: "Khu nhà điều hành & Hạ tầng kỹ thuật Mẫu (DEMO)",
+      package: "Gói thầu số 01-DEMO: Thi công phần móng, kết cấu thân & hoàn thiện",
+      category_name: "Hạng mục Nhà điều hành 3 tầng — Khu A",
+      location: "Khu đô thị Mẫu Mới, Phường Trung Tâm, TP. Giả Định",
+      place_name: "TP. Giả Định",
+      contract_no: "01/2026/HĐXD-DEMO ngày 20/07/2026",
+      lab_contract_no: "09/2026/HĐTN-DEMO ngày 25/07/2026",
+      handover_date: "2026-08-01",
+      start_date: "2026-08-03",
+      end_date: "2026-12-15",
+      contract_branch: "Thường (CĐT - TVGS - Nhà thầu)",
+      timezone: "Asia/Ho_Chi_Minh",
+    },
+    partners: [
+      {
+        partner_code: "DEMO-CDT-001",
+        name: "Ban QLDA Đầu tư Xây dựng Khu vực Mẫu (DEMO)",
+        role: "Chủ đầu tư",
+        representative: "Ông Nguyễn Minh T (Demo)",
+        position: "Giám đốc Ban QLDA",
+        phone: "0900-000-001",
+        address: "Số 01 Đường Mẫu, TP. Giả Định",
+        is_signer: true,
+      },
+      {
+        partner_code: "DEMO-TK-001",
+        name: "Công ty CP Tư vấn Thiết kế Kiến trúc Ánh Dương (DEMO)",
+        role: "Đơn vị thiết kế",
+        representative: "KTS. Lê Văn K (Demo)",
+        position: "Chủ nhiệm thiết kế",
+        phone: "0900-000-002",
+        address: "Số 02 Đường Mẫu, TP. Giả Định",
+        is_signer: true,
+      },
+      {
+        partner_code: "DEMO-GS-001",
+        name: "Công ty Tư vấn Giám sát & Quản lý Dự án Phương Đông (DEMO)",
+        role: "Tư vấn giám sát",
+        representative: "KS. Phạm Văn D (Demo)",
+        position: "Giám sát trưởng",
+        phone: "0900-000-003",
+        address: "Số 03 Đường Mẫu, TP. Giả Định",
+        is_signer: true,
+      },
+      {
+        partner_code: "DEMO-NT-001",
+        name: "Công ty CP Xây dựng & Hạ tầng Sao Việt (DEMO)",
+        role: "Nhà thầu thi công",
+        representative: "KS. Nguyễn Văn A (Demo)",
+        position: "Chỉ huy trưởng công trường",
+        phone: "0900-000-004",
+        address: "Số 04 Đường Mẫu, TP. Giả Định",
+        is_signer: true,
+      },
+      {
+        partner_code: "DEMO-PTN-001",
+        name: "Trung tâm Thí nghiệm & Kiểm định Xây dựng LAS-XD 9999 (DEMO)",
+        role: "Đơn vị thí nghiệm",
+        representative: "KS. Vũ Văn F (Demo)",
+        position: "Trưởng phòng thí nghiệm",
+        phone: "0900-000-005",
+        address: "Số 05 Đường Mẫu, TP. Giả Định",
+        is_signer: true,
+        license_no: "GCN-9999/BXD (Mẫu Demo)",
+      },
+    ],
+    timeSlots: STANDARD_TIME_SLOTS,
+    legalProfile: {
+      project_code: "DEMO-CT-001",
+      decision_date: "2026-07-15",
+      decision_ref: "DEMO-QD-001",
+      start_date: "2026-08-03",
+      project_type: "Công trình dân dụng (Nhà điều hành)",
+      project_grade: "Cấp III (Giả định Demo)",
+      old_check_scope: "Không thuộc diện",
+      new_check_scope: "Thuộc diện",
+      requires_state_inspection: "Chưa xác định",
+      authority: "Sở Xây dựng địa phương (Chờ xác minh theo Điều 26)",
+      receipt_date: "",
+      inspection_before_effective: "Chưa kiểm tra",
+      decision_reason: "Khởi công sau 01/07/2026 — áp dụng khung NĐ 207/2026/NĐ-CP & TT 32/2026/TT-BXD; cần chuyên gia rà soát diện kiểm tra.",
+      legal_profile: "NĐ 207/2026/NĐ-CP (Hiệu lực 01/07/2026)",
+      reviewer: "Chờ chuyên gia pháp lý xác nhận",
+    },
+    workCatalog: STANDARD_WORK_CATALOG,
+    standards: STANDARD_TCNT_CATALOG,
+    inspectionTypes: STANDARD_INSPECTION_TYPES,
+    testTypes: STANDARD_TEST_TYPES,
+    testResultCatalog: STANDARD_TEST_RESULTS,
+    machines: STANDARD_MACHINES,
+    materials: [
+      { material_code: "DEMO-VL-001", name: "Bê tông thương phẩm M250 đá 1x2", source: "Trạm trộn Bê tông Mẫu Số 1", supplier: "NCC Bê tông Demo", sample_quantity: 12, unit: "m3", notes: "Đổ móng M1, M2" },
+      { material_code: "DEMO-VL-002", name: "Thép cốt bê tông CB400-V D10÷D22", source: "Nhà máy Thép Mẫu", supplier: "NCC Thép Demo", sample_quantity: 1, unit: "tấn", notes: "Mỗi chủng loại lấy 01 tổ 3 thanh L=80cm" },
+      { material_code: "DEMO-VL-003", name: "Cát vàng bê tông môđun độ lớn >= 2.0", source: "Mỏ cát Sông Mẫu", supplier: "NCC Vật liệu Demo", sample_quantity: 100, unit: "kg", notes: "Phục vụ thí nghiệm cấp phối" },
+      { material_code: "DEMO-VL-004", name: "Đá dăm 1x2cm", source: "Mỏ đá Mẫu Bắc", supplier: "NCC Vật liệu Demo", sample_quantity: 100, unit: "kg", notes: "Đảm bảo cường độ đá gốc" },
+      { material_code: "DEMO-VL-005", name: "Xi măng PCB40 bao 50kg", source: "Nhà máy XM Mẫu", supplier: "NCC Xi măng Demo", sample_quantity: 50, unit: "kg", notes: "Phục vụ công tác xây trát" },
+      { material_code: "DEMO-VL-006", name: "Gạch không nung 6x10,5x22cm", source: "Nhà máy Gạch Mẫu", supplier: "NCC Gạch Demo", sample_quantity: 20, unit: "viên", notes: "Xây tường bao và vách ngăn" },
+    ],
+    materialLots: [
+      { lot_code: "DEMO-LO-001", material_code: "DEMO-VL-001", quantity: 45, unit: "m3", received_date: "2026-08-09", document_ref: "DEMO-DOC-VL-001", has_co_cq: true, acceptance_status: "Đã nghiệm thu", inspector_note: "TVGS đã kiểm tra phiếu xuất xưởng & độ sụt trước đổ" },
+      { lot_code: "DEMO-LO-002", material_code: "DEMO-VL-002", quantity: 14.5, unit: "tấn", received_date: "2026-08-07", document_ref: "DEMO-DOC-VL-002", has_co_cq: true, acceptance_status: "Đã nghiệm thu", inspector_note: "Đủ CO/CQ nhà sản xuất, đã lấy mẫu kéo uốn" },
+      { lot_code: "DEMO-LO-003", material_code: "DEMO-VL-003", quantity: 60, unit: "m3", received_date: "2026-08-05", document_ref: "DEMO-DOC-VL-003", has_co_cq: true, acceptance_status: "Đã nghiệm thu", inspector_note: "Sạch, không lẫn tạp chất hữu cơ" },
+      { lot_code: "DEMO-LO-004", material_code: "DEMO-VL-004", quantity: 85, unit: "m3", received_date: "2026-08-06", document_ref: "DEMO-DOC-VL-004", has_co_cq: true, acceptance_status: "Đề nghị nghiệm thu", inspector_note: "Đã tập kết bãi, chờ kết quả nén đá gốc" },
+      { lot_code: "DEMO-LO-005", material_code: "DEMO-VL-006", quantity: 18000, unit: "viên", received_date: "2026-08-13", document_ref: "DEMO-DOC-VL-005", has_co_cq: false, acceptance_status: "Chưa kiểm tra", inspector_note: "Mới nhập kho, chưa có chứng chỉ hợp quy — chặn sử dụng" },
+    ],
+    concreteMixes: [
+      { mix_code: "DEMO-CP-001", grade: "M250 DEMO", aggregate: "Đá 1x2cm", design_slip: "DEMO-CPT-001", design_date: "2026-08-01", cement: 320, sand: 700, stone: 1200, water: 180, admixture_1: 3.0, admixture_2: 0, slump: 12, unit_notes: "kg/m3 (Nước lít/m3, Độ sụt cm)" },
+      { mix_code: "CP-M100", grade: "M100", aggregate: "Đá 1x2cm", design_slip: "CPT-M100-2026", design_date: "2026-08-01", cement: 228, sand: 695, stone: 1245, water: 191, admixture_1: 0, admixture_2: 0, slump: 8, unit_notes: "Bê tông lót móng" },
+      { mix_code: "CP-M200", grade: "M200", aggregate: "Đá 1x2cm", design_slip: "CPT-M200-2026", design_date: "2026-08-01", cement: 285, sand: 680, stone: 1220, water: 185, admixture_1: 2.2, admixture_2: 0, slump: 10, unit_notes: "Kết cấu phụ" },
+      { mix_code: "CP-M300", grade: "M300", aggregate: "Đá 1x2cm", design_slip: "CPT-M300-2026", design_date: "2026-08-01", cement: 410, sand: 660, stone: 1180, water: 182, admixture_1: 3.8, admixture_2: 0, slump: 14, unit_notes: "Cột chịu lực tầng 1-3" },
+      { mix_code: "CP-VUA-M75", grade: "Vữa M75", aggregate: "Cát mịn", design_slip: "CPT-V75-2026", design_date: "2026-08-01", cement: 336, sand: 1180, stone: 0, water: 270, admixture_1: 0, admixture_2: 0, slump: 7, unit_notes: "Vữa xây trát" },
+    ],
+    schedule: [
+      { source_row: 7, record_key: "SEC-01", parent_key: "", relation_key: "", work_code: "", description: "PHẦN I: CÔNG TÁC CHUẨN BỊ & PHẦN NGẦM MÓNG", location: "Khu A", start_date: "2026-08-03", end_date: "2026-08-11", internal_date: "", request_date: "", acceptance_date: "", attachment_raw: "", standard_codes: "", test_codes: "", row_type: "section" },
+      { source_row: 8, record_key: "DEMO-W-002", parent_key: "SEC-01", relation_key: "", work_code: "AB.11422", description: "Đào đất hố móng M1, M2 và kiểm tra nền đất", location: "Móng M1, M2", start_date: "2026-08-03", end_date: "2026-08-04", internal_date: "2026-08-04", request_date: "2026-08-04", acceptance_date: "2026-08-05", attachment_raw: "KT.00004/HinhAnh_HoMong_M1", standard_codes: "TCVN4447:2012;TCVN9361:2012", test_codes: "CP.010001", row_type: "work" },
+      { source_row: 9, record_key: "DEMO-W-003", parent_key: "SEC-01", relation_key: "DEMO-W-002", work_code: "AF.11111", description: "Đổ bê tông lót móng đá 1x2 M100 dày 10cm", location: "Móng M1, M2", start_date: "2026-08-06", end_date: "2026-08-06", internal_date: "2026-08-06", request_date: "2026-08-06", acceptance_date: "2026-08-07", attachment_raw: "M100/đá 1x2cm/8", standard_codes: "TCVN4453:1995", test_codes: "CP.010032", row_type: "work" },
+      { source_row: 10, record_key: "DEMO-W-004", parent_key: "SEC-01", relation_key: "DEMO-W-003", work_code: "AF.61121", description: "Gia công lắp dựng cốt thép đài móng & giằng móng", location: "Móng M1, M2", start_date: "2026-08-08", end_date: "2026-08-09", internal_date: "2026-08-09", request_date: "2026-08-09", acceptance_date: "2026-08-09", attachment_raw: "KT.00008/Thep_D18", standard_codes: "TCVN4453:1995;TCVN9390:2012", test_codes: "CP.010010", row_type: "work" },
+      { source_row: 11, record_key: "DEMO-W-005", parent_key: "SEC-01", relation_key: "DEMO-W-004", work_code: "AF.81111", description: "Lắp dựng ván khuôn đài móng và cổ cột M1", location: "Móng M1", start_date: "2026-08-09", end_date: "2026-08-09", internal_date: "2026-08-09", request_date: "2026-08-09", acceptance_date: "2026-08-10", attachment_raw: "KT.00007/VanKhuon_M1", standard_codes: "TCVN4453:1995", test_codes: "", row_type: "work" },
+      { source_row: 16, record_key: "DEMO-W-001", parent_key: "SEC-01", relation_key: "DEMO-W-005", work_code: "DEMO-CV-001", description: "Đổ bê tông móng M1 (M250 DEMO - thông tin giả định)", location: "Móng M1", start_date: "2026-08-10", end_date: "2026-08-10", internal_date: "2026-08-10", request_date: "2026-08-10", acceptance_date: "2026-08-10", attachment_raw: "M250/đá 1x2cm/12//R7/R28/16", standard_codes: "DEMO-TC-001;TCVN4453:1995", test_codes: "DEMO-TN-001", row_type: "work" },
+      { source_row: 17, record_key: "SEC-02", parent_key: "", relation_key: "", work_code: "", description: "PHẦN II: KẾT CẤU THÂN & HOÀN THIỆN TẦNG 1", location: "Tầng 1 - Khu A", start_date: "2026-08-12", end_date: "2026-08-20", internal_date: "", request_date: "", acceptance_date: "", attachment_raw: "", standard_codes: "", test_codes: "", row_type: "section" },
+      { source_row: 18, record_key: "DEMO-W-006", parent_key: "SEC-02", relation_key: "DEMO-W-001", work_code: "AF.12215", description: "Thi công cốt thép, ván khuôn & đổ bê tông cột tầng 1", location: "Trục A1-C4 Tầng 1", start_date: "2026-08-12", end_date: "2026-08-14", internal_date: "2026-08-14", request_date: "2026-08-14", acceptance_date: "2026-08-15", attachment_raw: "M300/đá 1x2cm/14//R7/R28/18", standard_codes: "TCVN4453:1995", test_codes: "CP.010032", row_type: "work" },
+      { source_row: 19, record_key: "DEMO-W-007", parent_key: "SEC-02", relation_key: "DEMO-W-006", work_code: "AE.22223", description: "Xây tường gạch không nung tầng 1 vữa XM M75", location: "Tầng 1 - Khu A", start_date: "2026-08-16", end_date: "2026-08-19", internal_date: "2026-08-19", request_date: "2026-08-19", acceptance_date: "2026-08-20", attachment_raw: "M75/4x4x16//R7/R28/19", standard_codes: "TCVN4085:2011", test_codes: "CP.010033", row_type: "work" },
+      { source_row: 20, record_key: "DEMO-W-008", parent_key: "SEC-02", relation_key: "DEMO-W-007", work_code: "HT.00001", description: "Nghiệm thu hoàn thành giai đoạn kết cấu phần ngầm & tầng 1", location: "Khu A", start_date: "2026-08-20", end_date: "2026-08-20", internal_date: "2026-08-20", request_date: "2026-08-20", acceptance_date: "2026-08-21", attachment_raw: "HT-GIAIDOAN-01", standard_codes: "TCVN5637:1991", test_codes: "", row_type: "work" },
+    ],
+    inspections: [
+      { inspection_key: "DEMO-KT-001", work_record_key: "DEMO-W-001", inspection_type: "DEMO-KT-DK", kthh_group: "BT", date: "2026-08-10", location: "Móng M1", result: "Chờ người có thẩm quyền đánh giá (thiếu dung sai)", image_refs: "anh_mong_m1_01.jpg", rule_approved: false },
+      { inspection_key: "DEMO-KT-002", work_record_key: "DEMO-W-002", inspection_type: "KT.00004", kthh_group: "HM", date: "2026-08-04", location: "Hố móng M1, M2", result: "Đạt dung sai theo TCVN 4447:2012", image_refs: "anh_ho_mong_01.jpg", rule_approved: true },
+      { inspection_key: "DEMO-KT-003", work_record_key: "DEMO-W-004", inspection_type: "KT.00008", kthh_group: "CT", date: "2026-08-09", location: "Đài móng M1", result: "Đạt dung sai theo TCVN 4453:1995", image_refs: "anh_cot_thep_01.jpg", rule_approved: true },
+      { inspection_key: "DEMO-KT-004", work_record_key: "DEMO-W-005", inspection_type: "KT.00007", kthh_group: "CP", date: "2026-08-09", location: "Ván khuôn móng M1", result: "Đạt dung sai theo TCVN 4453:1995", image_refs: "anh_van_khuon_01.jpg", rule_approved: true },
+      { inspection_key: "DEMO-KT-005", work_record_key: "DEMO-W-006", inspection_type: "KT.00006", kthh_group: "BT", date: "2026-08-14", location: "Cột trục A1-C4", result: "Cảnh báo có 01 chỉ tiêu vượt dung sai cần xử lý", image_refs: "anh_cot_t1_01.jpg", rule_approved: true },
+    ],
+    measurements: [
+      { inspection_key: "DEMO-KT-001", line_no: 1, measurement_name: "Chiều rộng móng M1", design_value: 1200, actual_value: 1198, unit: "mm", tolerance: null },
+      { inspection_key: "DEMO-KT-001", line_no: 2, measurement_name: "Chiều dài móng M1", design_value: 2400, actual_value: 2395, unit: "mm", tolerance: null },
+      { inspection_key: "DEMO-KT-002", line_no: 1, measurement_name: "Cao độ đáy hố móng M1", design_value: -1850, actual_value: -1854, unit: "mm", tolerance: 10 },
+      { inspection_key: "DEMO-KT-002", line_no: 2, measurement_name: "Bề rộng đáy hố móng M1", design_value: 1400, actual_value: 1405, unit: "mm", tolerance: 15 },
+      { inspection_key: "DEMO-KT-003", line_no: 1, measurement_name: "Khoảng cách cốt thép chủ Ø18", design_value: 150, actual_value: 152, unit: "mm", tolerance: 10 },
+      { inspection_key: "DEMO-KT-003", line_no: 2, measurement_name: "Chiều dày lớp bê tông bảo vệ", design_value: 50, actual_value: 51, unit: "mm", tolerance: 5 },
+      { inspection_key: "DEMO-KT-004", line_no: 1, measurement_name: "Độ thẳng đứng ván khuôn thành móng", design_value: 0, actual_value: 2, unit: "mm", tolerance: 5 },
+      { inspection_key: "DEMO-KT-005", line_no: 1, measurement_name: "Tiết diện cột C1 (Cạnh b)", design_value: 300, actual_value: 307, unit: "mm", tolerance: 5 },
+      { inspection_key: "DEMO-KT-005", line_no: 2, measurement_name: "Độ lệch trục tim cột C1", design_value: 0, actual_value: 3, unit: "mm", tolerance: 5 },
+    ],
+    testPlans: [
+      { plan_id: "DEMO-KHTN-001", project_code: "DEMO-CT-001", object: "Bê tông móng M1 (M250)", test: "DEMO-TN-001", planned_at: "2026-08-10", laboratory: "LAS-XD 9999 (DEMO)", design_ref: "DEMO-TK-001", approval_ref: "VB-CDT-01/2026", approval_date: "2026-08-01", version: 1, status: "Đã chấp thuận" },
+      { plan_id: "DEMO-KHTN-002", project_code: "DEMO-CT-001", object: "Thép cốt bê tông D10÷D22", test: "CP.010010", planned_at: "2026-08-07", laboratory: "LAS-XD 9999 (DEMO)", design_ref: "DEMO-TK-001", approval_ref: "VB-CDT-01/2026", approval_date: "2026-08-01", version: 1, status: "Đã chấp thuận" },
+      { plan_id: "DEMO-KHTN-003", project_code: "DEMO-CT-001", object: "Cát vàng & Đá 1x2cm", test: "CP.010007", planned_at: "2026-08-05", laboratory: "LAS-XD 9999 (DEMO)", design_ref: "DEMO-TK-001", approval_ref: "VB-CDT-01/2026", approval_date: "2026-08-01", version: 1, status: "Đã chấp thuận" },
+      { plan_id: "DEMO-KHTN-004", project_code: "DEMO-CT-001", object: "Vữa xây tường M75", test: "CP.010033", planned_at: "2026-08-16", laboratory: "LAS-XD 9999 (DEMO)", design_ref: "DEMO-TK-001", approval_ref: "", approval_date: "", version: 1, status: "Chờ CĐT chấp thuận" },
+    ],
+    testSamples: [
+      { sample_key: "DEMO-M-001", work_record_key: "DEMO-W-001", test_code: "DEMO-TN-001", sample_group: "BT", sample_date: "2026-08-10", sample_time: "09:15", sample_type: "Bê tông thương phẩm M250", mix_code: "DEMO-CP-001", grade: "M250 DEMO", aggregate: "Đá 1x2cm", slump: 12, r3: null, r7: 21.8, r28: 28.5, mould: "150x150x150 mm (02 tổ 6 viên)", supervisor_name: "KS. Phạm Văn D (TVGS Demo)", original_attachment: "BBLMBT-001.pdf" },
+      { sample_key: "DEMO-M-002", work_record_key: "DEMO-W-004", test_code: "CP.010010", sample_group: "VL", sample_date: "2026-08-07", sample_time: "14:30", sample_type: "Thép vằn D18 CB400-V", mix_code: "", grade: "CB400-V", aggregate: "", slump: null, r3: null, r7: null, r28: null, mould: "3 thanh L=800 mm", supervisor_name: "KS. Phạm Văn D (TVGS Demo)", original_attachment: "BBLMVL-002.pdf" },
+      { sample_key: "DEMO-M-003", work_record_key: "DEMO-W-003", test_code: "CP.010007", sample_group: "VL", sample_date: "2026-08-05", sample_time: "10:00", sample_type: "Cát vàng bê tông", mix_code: "", grade: "MĐL >= 2.0", aggregate: "", slump: null, r3: null, r7: null, r28: null, mould: "100 kg", supervisor_name: "KS. Hoàng Văn E (TVGS Demo)", original_attachment: "BBLMVL-003.pdf" },
+      { sample_key: "DEMO-M-004", work_record_key: "DEMO-W-006", test_code: "CP.010032", sample_group: "BT", sample_date: "2026-08-14", sample_time: "15:10", sample_type: "Bê tông cột M300", mix_code: "CP-M300", grade: "M300", aggregate: "Đá 1x2cm", slump: 14, r3: null, r7: null, r28: null, mould: "150x150x150 mm (02 tổ 6 viên)", supervisor_name: "KS. Phạm Văn D (TVGS Demo)", original_attachment: "BBLMBT-004.pdf" },
+    ],
+    testResults: [
+      { sample_key: "DEMO-M-001", criterion: "Cường độ nén R7 (7 ngày)", value: 21.8, unit: "MPa", lab_ref: "PTN-2026-0817", result_date: "2026-08-17", target_age_days: 7, conclusion: "Đạt yêu cầu" },
+      { sample_key: "DEMO-M-001", criterion: "Cường độ nén R28 (28 ngày)", value: 28.5, unit: "MPa", lab_ref: "PTN-2026-0907", result_date: "2026-09-07", target_age_days: 28, conclusion: "Đạt yêu cầu" },
+      { sample_key: "DEMO-M-002", criterion: "Giới hạn chảy thép D18", value: 432, unit: "MPa", lab_ref: "PTN-2026-0808", result_date: "2026-08-08", target_age_days: 1, conclusion: "Đạt yêu cầu" },
+      { sample_key: "DEMO-M-003", criterion: "Môđun độ lớn cát vàng", value: 2.35, unit: "Mdl", lab_ref: "PTN-2026-0806", result_date: "2026-08-06", target_age_days: 1, conclusion: "Đạt yêu cầu" },
+    ],
+    acceptances: [
+      {
+        record_id: "DEMO-BB-001",
+        project_code: "DEMO-CT-001",
+        kind: "Công việc",
+        work_ids: "DEMO-W-001",
+        request_received_at: "2026-08-10 09:00",
+        inspection_at: "2026-08-10 10:00",
+        location: "Móng M1",
+        signer_role: "Giám sát CĐT; Nhà thầu thi công",
+        signer_identity: "KS. Phạm Văn D; KS. Nguyễn Văn A",
+        conclusion: "Chờ xác nhận dung sai KTHH & kết quả R28",
+        defects: "",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 22",
+        evidence_refs: "DEMO-KT-001;DEMO-M-001;DEMO-LO-001",
+        status: "review",
+      },
+      {
+        record_id: "DEMO-BB-002",
+        project_code: "DEMO-CT-001",
+        kind: "Công việc",
+        work_ids: "DEMO-W-002",
+        request_received_at: "2026-08-04 15:00",
+        inspection_at: "2026-08-05 08:30",
+        location: "Hố móng M1, M2",
+        signer_role: "Giám sát trưởng; Chỉ huy trưởng",
+        signer_identity: "KS. Phạm Văn D; KS. Nguyễn Văn A",
+        conclusion: "Đồng ý nghiệm thu, cho phép chuyển bước đổ bê tông lót",
+        defects: "",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 22",
+        evidence_refs: "DEMO-KT-002",
+        status: "issued",
+        issued_no: "001/2026/NTCV",
+        issued_seq: 1,
+        issued_at: "2026-08-05T09:00:00+07:00",
+        snapshot_hash: "SHA256-SIM-4A81C209",
+      },
+      {
+        record_id: "DEMO-BB-003",
+        project_code: "DEMO-CT-001",
+        kind: "Vật liệu",
+        work_ids: "DEMO-W-001",
+        request_received_at: "2026-08-09 08:00",
+        inspection_at: "2026-08-09 10:30",
+        location: "Cổng công trường — Lô DEMO-LO-001",
+        signer_role: "Giám sát CĐT; Cán bộ KCS",
+        signer_identity: "KS. Phạm Văn D; KS. Lê Thị C",
+        conclusion: "Chấp thuận đưa lô bê tông thương phẩm DEMO-LO-001 vào sử dụng",
+        defects: "",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 14(6)",
+        evidence_refs: "DEMO-LO-001",
+        status: "issued",
+        issued_no: "001/2026/NTVL",
+        issued_seq: 1,
+        issued_at: "2026-08-09T11:00:00+07:00",
+        snapshot_hash: "SHA256-SIM-7F92B110",
+      },
+      {
+        record_id: "DEMO-BB-004",
+        project_code: "DEMO-CT-001",
+        kind: "Công việc",
+        work_ids: "DEMO-W-006",
+        request_received_at: "2026-08-14 08:00",
+        inspection_at: "2026-08-15 10:30",
+        location: "Cột trục A1-C4 Tầng 1",
+        signer_role: "Giám sát trưởng; Chỉ huy trưởng",
+        signer_identity: "KS. Phạm Văn D; KS. Nguyễn Văn A",
+        conclusion: "Chưa đồng ý nghiệm thu — Yêu cầu xử lý tiết diện cột C1 vượt dung sai +7mm",
+        defects: "Cạnh b cột C1 đạt 307mm (> +5mm cho phép). Cần đục tỉa bù phẳng theo biện pháp kỹ thuật.",
+        rejection_reason: "Vi phạm dung sai KTHH tại DEMO-KT-005 và trễ hạn phản hồi 26.5h > 24h theo Điều 22(3)",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 22(3)",
+        evidence_refs: "DEMO-KT-005;DEMO-M-004",
+        status: "draft",
+      },
+      {
+        record_id: "DEMO-BBGD-001",
+        project_code: "DEMO-CT-001",
+        kind: "Giai đoạn",
+        work_ids: "DEMO-W-002;DEMO-W-003;DEMO-W-004;DEMO-W-005;DEMO-W-001",
+        request_received_at: "2026-08-11 08:00",
+        inspection_at: "2026-08-11 14:00",
+        location: "Toàn bộ phần móng Khu A",
+        signer_role: "Chủ đầu tư; Giám sát trưởng; Chỉ huy trưởng",
+        signer_identity: "Chờ ký nghiệm thu giai đoạn",
+        conclusion: "Chờ hoàn tất biên bản công việc DEMO-BB-001",
+        defects: "",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 23",
+        evidence_refs: "DEMO-BB-001;DEMO-BB-002;DEMO-HC-001",
+        status: "draft",
+      },
+      {
+        record_id: "DEMO-BBHT-001",
+        project_code: "DEMO-CT-001",
+        kind: "Hoàn thành có điều kiện",
+        work_ids: "DEMO-W-008",
+        request_received_at: "2026-08-20 09:00",
+        inspection_at: "2026-08-21 08:30",
+        location: "Hạng mục Nhà điều hành Khu A",
+        signer_role: "Chủ đầu tư; Tư vấn thiết kế; Giám sát trưởng; Chỉ huy trưởng",
+        signer_identity: "Chờ xác nhận thành phần theo Điều 24(6)",
+        conclusion: "Bản nháp cấu trúc nghiệm thu hoàn thành — cần đủ hồ sơ PCCC & PL VII",
+        defects: "Cần hoàn thiện sơn dặm mặt ngoài và kiểm định hệ thống PCCC trước khi đưa vào khai thác chính thức",
+        warranty_months: 24,
+        fire_safety_note: "Cần văn bản nghiệm thu PCCC của cơ quan chuyên môn theo Điều 24(5)(đ)",
+        legal_profile: "NĐ 207/2026/NĐ-CP Điều 24(1)-(6)",
+        evidence_refs: "DEMO-DM-VII",
+        status: "draft",
+      },
+    ],
+    numberSequences: [
+      {
+        seq_key: "DEMO-CT-001-NTCV-2026",
+        doc_type: "Công việc",
+        year: 2026,
+        prefix: "NTCV",
+        next_no: 2,
+        issued_records: [
+          { no: 1, label: "001/2026/NTCV", record_id: "DEMO-BB-002", issued_at: "2026-08-05T09:00:00+07:00", status: "active" },
+        ],
+      },
+      {
+        seq_key: "DEMO-CT-001-NTVL-2026",
+        doc_type: "Vật liệu",
+        year: 2026,
+        prefix: "NTVL",
+        next_no: 2,
+        issued_records: [
+          { no: 1, label: "001/2026/NTVL", record_id: "DEMO-BB-003", issued_at: "2026-08-09T11:00:00+07:00", status: "active" },
+        ],
+      },
+    ],
+    weatherDays: [
+      { date: "2026-08-08", high: 34, low: 26, rain_mm: 0, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Nắng ráo, thi công bình thường", personnel: "18 công nhân, 2 kỹ sư", is_stop_confirmed: false },
+      { date: "2026-08-09", high: 33, low: 25, rain_mm: 2.5, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Mưa nhẹ đầu giờ chiều, không gián đoạn", personnel: "20 công nhân, 3 kỹ sư", is_stop_confirmed: false },
+      { date: "2026-08-10", high: 33, low: 25, rain_mm: 0, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Thời tiết thuận lợi cho đổ bê tông móng M1", personnel: "24 công nhân, 3 kỹ sư", is_stop_confirmed: false },
+      { date: "2026-08-11", high: 29, low: 24, rain_mm: 18.4, source: "Gợi ý cảm biến/API (Chờ KS xác nhận)", observed_or_forecast: "Gợi ý hệ thống", note: "Mưa lớn >= 10mm — Gợi ý tạm dừng đổ bê tông ngoài trời", personnel: "12 công nhân (bảo dưỡng bê tông)", is_stop_confirmed: false },
+      { date: "2026-08-12", high: 32, low: 25, rain_mm: 0, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Trời nắng, triển khai thi công cột tầng 1", personnel: "22 công nhân, 3 kỹ sư", is_stop_confirmed: false },
+      { date: "2026-08-13", high: 34, low: 26, rain_mm: 0, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Nắng ráo, lắp dựng ván khuôn cột", personnel: "22 công nhân, 3 kỹ sư", is_stop_confirmed: false },
+      { date: "2026-08-14", high: 33, low: 26, rain_mm: 0, source: "Ghi nhận hiện trường (Demo)", observed_or_forecast: "Quan trắc thực tế", note: "Đổ bê tông cột trục A1-C4", personnel: "25 công nhân, 3 kỹ sư", is_stop_confirmed: false },
+    ],
+    diaryEntries: [
+      { date: "2026-08-08", work_record_key: "DEMO-W-004", description: "Gia công và lắp dựng cốt thép đài móng M1, M2 theo bản vẽ kết cấu", equipment: "M0004 (Máy cắt uốn thép)", personnel: "Tổ thép 10 người + 2 kỹ thuật", incidents_or_notes: "Không có sự cố", sanitation_safety: "Đã nhắc nhở trang bị mũ bảo hộ và dây an toàn", status: "Đã xác nhận" },
+      { date: "2026-08-09", work_record_key: "DEMO-W-005", description: "Hoàn thiện lắp dựng ván khuôn đài móng M1 và kiểm tra kích thước hình học", equipment: "M0005 (Máy toàn đạc)", personnel: "Tổ cốp pha 12 người", incidents_or_notes: "TVGS yêu cầu gia cố thêm thanh chống xiên góc đông nam", sanitation_safety: "Đảm bảo vệ sinh khu vực gia công", status: "Đã xác nhận" },
+      { date: "2026-08-10", work_record_key: "DEMO-W-001", description: "Đổ bê tông móng M1 mác M250, lấy 02 tổ mẫu nén R7/R28 tại hiện trường", equipment: "DEMO-MAY-001; M0002 (Xe bơm); M0003 (Đầm dùi)", personnel: "Tổ bê tông 16 người + TVGS trực", incidents_or_notes: "Độ sụt đo tại hiện trường 12cm đạt yêu cầu", sanitation_safety: "Rửa xe bơm đúng vị trí quy định", status: "Đã xác nhận" },
+      { date: "2026-08-11", work_record_key: "DEMO-W-001", description: "Tưới nước bảo dưỡng bê tông móng M1, che phủ bạt do trời mưa lớn", equipment: "Máy bơm nước bảo dưỡng", personnel: "8 công nhân trực bảo dưỡng", incidents_or_notes: "Tạm dừng công tác ngoài trời lúc 14h00 do mưa 18.4mm", sanitation_safety: "Khơi thông rãnh thoát nước hố móng", status: "Bản nháp" },
+      { date: "2026-08-14", work_record_key: "DEMO-W-006", description: "Đổ bê tông cột tầng 1 trục A1-C4, phát hiện sai số kích thước tại cột C1 cần xử lý", equipment: "M0002; M0003", personnel: "Tổ bê tông 15 người", incidents_or_notes: "Đã lập ghi nhận tồn tại kỹ thuật tại cột C1 (xem DEMO-SC-001)", sanitation_safety: "Đầy đủ lan can an toàn giàn giáo", status: "Bản nháp" },
+    ],
+    checklist: build42ChecklistTemplate("DEMO-CT-001", "DEMO-MONG-M1", true),
+    asBuiltDrawings: [
+      { drawing_id: "DEMO-HC-001", project_code: "DEMO-CT-001", work_record_key: "DEMO-W-001", name: "Bản vẽ hoàn công móng M1 (PL IIb)", revision: 1, actual_measurement_ref: "DEMO-KT-001", is_concealed_work: true, file_ref: "BVHC-MONG-M1-R1.pdf", signer: "Chờ ký hoàn công trước lấp đất", status: "Nháp DEMO" },
+      { drawing_id: "DEMO-HC-002", project_code: "DEMO-CT-001", work_record_key: "DEMO-W-002", name: "Bản vẽ hoàn công hố móng & cao độ nền", revision: 1, actual_measurement_ref: "DEMO-KT-002", is_concealed_work: true, file_ref: "BVHC-HOMONG-R1.pdf", signer: "KS. Nguyễn Văn A; KS. Phạm Văn D", status: "Đã ký xác nhận" },
+      { drawing_id: "DEMO-HC-003", project_code: "DEMO-CT-001", work_record_key: "DEMO-W-004", name: "Bản vẽ hoàn công cốt thép đài móng M1, M2", revision: 1, actual_measurement_ref: "DEMO-KT-003", is_concealed_work: true, file_ref: "BVHC-COTTHEP-R1.pdf", signer: "KS. Nguyễn Văn A; KS. Phạm Văn D", status: "Đã ký xác nhận" },
+    ],
+    handovers: [
+      { handover_id: "DEMO-BG-001", project_code: "DEMO-CT-001", scope_id: "DEMO-MONG-M1", receiver: "Chưa nhập người tiếp nhận bàn giao (Phụ lục X)", handover_date: "", file_refs: "DEMO-HC-001;DEMO-HC-002", status: "Nháp DEMO" },
+    ],
+    incidents: [
+      { incident_id: "DEMO-SC-001", project_code: "DEMO-CT-001", work_record_key: "DEMO-W-006", time: "2026-08-14 16:00", description: "Tình huống giả định kiểm thử: Phình ván khuôn cục bộ cạnh b cột C1 (+7mm). Cần lập biên bản xử lý kỹ thuật (không phải sự cố thật).", evidence_refs: "DEMO-KT-005", status: "Đang xử lý (Nháp DEMO)" },
+    ],
+    observations: [
+      { monitor_id: "DEMO-QT-001", project_code: "DEMO-CT-001", object: "Mốc lún móng M1 (Quan trắc theo Điều 7 nếu thuộc diện)", method: "Thủy chuẩn chính xác", limit: 5.0, value: 2.1, unit: "mm", date: "2026-08-10", approval_ref: "DCQT-01-DEMO" },
+    ],
+    auditLogs: [
+      { id: "AUD-001", timestamp: "2026-08-03T08:00:00+07:00", actor: "Hệ thống Demo", action: "SEED_DEMO_TENANT", detail: "Khởi tạo không gian DEMO-CT-001 tách biệt hoàn toàn với dự án thật (Zero real names)", entity: "tenant", entity_id: "tenant-demo-001" },
+      { id: "AUD-002", timestamp: "2026-08-05T09:00:00+07:00", actor: "KS. Phạm Văn D (TVGS Demo)", action: "ISSUE_RECORD", detail: "Cấp số bất biến 001/2026/NTCV cho biên bản DEMO-BB-002", entity: "acceptance", entity_id: "DEMO-BB-002" },
+      { id: "AUD-003", timestamp: "2026-08-09T11:00:00+07:00", actor: "KS. Phạm Văn D (TVGS Demo)", action: "ISSUE_RECORD", detail: "Cấp số bất biến 001/2026/NTVL cho biên bản vật liệu DEMO-BB-003", entity: "acceptance", entity_id: "DEMO-BB-003" },
+    ],
+  };
+}
+
+/**
+ * Kaizen §16.8 & K07: Tạo Tenant Thật hoàn toàn sạch, không chứa dữ liệu DEMO-* hoặc đối tác giả lập.
+ */
+export function createCleanRealTenant(params: {
+  contractorName: string;
+  projectCode: string;
+  projectName: string;
+  location: string;
+}): QlclWorkspaceState {
+  const now = new Date().toISOString();
+  const safeCode = params.projectCode.trim().toUpperCase().replace(/^DEMO-/, "CT-") || "CT-MOI-001";
+  return {
+    tenantId: `tenant-real-${Date.now()}`,
+    tenantMode: "real",
+    tenantName: `${params.contractorName || "Đơn vị Thi công Mới"} — ${safeCode}`,
+    lastUpdated: now,
+    project: {
+      project_code: safeCode,
+      project_name: params.projectName || "Dự án Công trình Mới",
+      package: "",
+      category_name: "",
+      location: params.location || "",
+      place_name: "",
+      contract_no: "",
+      lab_contract_no: "",
+      handover_date: "",
+      start_date: "",
+      end_date: "",
+      contract_branch: "Thường (CĐT - TVGS - Nhà thầu)",
+      timezone: "Asia/Ho_Chi_Minh",
+    },
+    partners: [
+      {
+        partner_code: "NT-001",
+        name: params.contractorName || "Nhà thầu thi công",
+        role: "Nhà thầu thi công",
+        representative: "",
+        position: "Chỉ huy trưởng",
+        phone: "",
+        address: "",
+        is_signer: true,
+      },
+    ],
+    timeSlots: STANDARD_TIME_SLOTS,
+    legalProfile: {
+      project_code: safeCode,
+      decision_date: "",
+      decision_ref: "",
+      start_date: "",
+      project_type: "",
+      project_grade: "Chưa xác định",
+      old_check_scope: "Chưa xác minh",
+      new_check_scope: "Chưa xác minh",
+      requires_state_inspection: "Chưa xác định",
+      authority: "",
+      receipt_date: "",
+      inspection_before_effective: "Chưa xác minh",
+      decision_reason: "",
+      legal_profile: "NĐ 207/2026/NĐ-CP & TT 32/2026/TT-BXD",
+      reviewer: "",
+    },
+    workCatalog: STANDARD_WORK_CATALOG.filter((w) => !w.code.startsWith("DEMO-")),
+    standards: STANDARD_TCNT_CATALOG.filter((s) => !s.code.startsWith("DEMO-")),
+    inspectionTypes: STANDARD_INSPECTION_TYPES.filter((i) => !i.code.startsWith("DEMO-")),
+    testTypes: STANDARD_TEST_TYPES.filter((t) => !t.code.startsWith("DEMO-")),
+    testResultCatalog: STANDARD_TEST_RESULTS.filter((r) => !r.code.startsWith("DEMO-")),
+    machines: STANDARD_MACHINES.filter((m) => !m.code.startsWith("DEMO-")),
+    materials: [],
+    materialLots: [],
+    concreteMixes: [],
+    schedule: [],
+    inspections: [],
+    measurements: [],
+    testPlans: [],
+    testSamples: [],
+    testResults: [],
+    acceptances: [],
+    numberSequences: [],
+    weatherDays: [],
+    diaryEntries: [],
+    checklist: build42ChecklistTemplate(safeCode, "TOAN-DU-AN", false),
+    asBuiltDrawings: [],
+    handovers: [],
+    incidents: [],
+    observations: [],
+    auditLogs: [
+      {
+        id: `AUD-${Date.now()}`,
+        timestamp: now,
+        actor: params.contractorName || "Quản trị viên",
+        action: "CREATE_CLEAN_REAL_TENANT",
+        entity: "tenant",
+        entity_id: safeCode,
+        detail: `Khởi tạo dự án thật sạch ${safeCode} tách biệt hoàn toàn khỏi dữ liệu DEMO`,
+      },
+    ],
+  };
+}
